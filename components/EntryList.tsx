@@ -33,7 +33,7 @@ interface EntryListProps {
   entries: Entry[];
   onView: (entry: Entry) => void;
   onEdit: (entry: Entry) => void;
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
   onAdd: () => void;
 }
 

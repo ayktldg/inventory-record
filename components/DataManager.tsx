@@ -7,6 +7,15 @@ import EntryForm from "./EntryForm";
 import EntryDetail from "./EntryDetail";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { db } from "../app/lib/firebase";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "firebase/firestore";
 
 export default function DataManager() {
   const [entries, setEntries] = useState<Entry[]>([]);
@@ -17,26 +26,32 @@ export default function DataManager() {
   );
 
   useEffect(() => {
-    const savedEntries = localStorage.getItem("entries");
-    if (savedEntries) {
-      setEntries(JSON.parse(savedEntries));
-    }
+    fetchEntries();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("entries", JSON.stringify(entries));
-  }, [entries]);
+  const fetchEntries = async () => {
+    const entriesCollection = collection(db, "entries");
+    const entriesSnapshot = await getDocs(entriesCollection);
+    const entriesList = entriesSnapshot.docs.map(
+      (doc) => ({ id: doc.id, ...doc.data() } as Entry)
+    );
+    setEntries(entriesList);
+  };
 
-  const handleSubmit = (formData: EntryFormData) => {
+  const handleSubmit = async (formData: EntryFormData) => {
+    const entriesCollection = collection(db, "entries");
+    const docRef = await addDoc(entriesCollection, formData);
     const newEntry: Entry = {
-      id: Date.now(),
+      id: docRef.id,
       ...formData,
     };
     setEntries([...entries, newEntry]);
     setCurrentPage("list");
   };
 
-  const handleUpdate = (updatedEntry: Entry) => {
+  const handleUpdate = async (updatedEntry: Entry) => {
+    const entryRef = doc(db, "entries", updatedEntry.id);
+    await updateDoc(entryRef, updatedEntry);
     setEntries(
       entries.map((entry) =>
         entry.id === updatedEntry.id ? updatedEntry : entry
@@ -47,7 +62,9 @@ export default function DataManager() {
     setCurrentPage("list");
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: string) => {
+    const entryRef = doc(db, "entries", id);
+    await deleteDoc(entryRef);
     setEntries(entries.filter((entry) => entry.id !== id));
     setCurrentPage("list");
   };
