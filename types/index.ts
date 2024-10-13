@@ -1,5 +1,5 @@
 export type Entry = {
-  id: number;
+  id: string;
   [key: string]: string | number;
 };
 

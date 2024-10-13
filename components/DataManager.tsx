@@ -32,9 +32,13 @@ export default function DataManager() {
   const fetchEntries = async () => {
     const entriesCollection = collection(db, "entries");
     const entriesSnapshot = await getDocs(entriesCollection);
-    const entriesList = entriesSnapshot.docs.map(
-      (doc) => ({ id: doc.id, ...doc.data() } as Entry)
-    );
+    const entriesList = entriesSnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+      } as Entry;
+    });
     setEntries(entriesList);
   };
 
