@@ -4,8 +4,6 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  basePath: "/inventory-record",
-  assetPrefix: "/inventory-record/",
 };
 
 module.exports = nextConfig;
